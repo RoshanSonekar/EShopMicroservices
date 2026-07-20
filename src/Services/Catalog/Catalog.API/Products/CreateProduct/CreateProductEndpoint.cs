@@ -23,7 +23,6 @@
 				.ProducesProblem(StatusCodes.Status400BadRequest)
 				.WithSummary("Creates a new product")
 				.WithDescription("Creates a new product with the specified details.");
-
 		}
 	}
 }
