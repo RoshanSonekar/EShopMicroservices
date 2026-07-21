@@ -19,8 +19,4 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks\BuildingBlocks.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Products\NewFolder\" />
-  </ItemGroup>
-
 </Project>
