@@ -1,6 +1,4 @@
-﻿using Catalog.API.Products.CreateProduct;
-
-namespace Catalog.API.Products.UpdateProduct
+﻿namespace Catalog.API.Products.UpdateProduct
 {
 	public record UpdateProductCommand(Guid Id, string Name, string Description, decimal Price, string ImageName, List<string> Category)
 		: ICommand<UpdateProductResult>;
@@ -21,18 +19,21 @@ namespace Catalog.API.Products.UpdateProduct
 		}
 	}
 
-	internal class UpdateProductCommandHandler(IDocumentSession session, ILogger<UpdateProductCommandHandler> logger)
+	internal class UpdateProductCommandHandler(IDocumentSession session, IValidator<UpdateProductCommand> validator)//, ILogger<UpdateProductCommandHandler> logger)
 		: ICommandHandler<UpdateProductCommand, UpdateProductResult>
 	{
 		public async Task<UpdateProductResult> Handle(UpdateProductCommand command, CancellationToken cancellationToken)
 		{
-			logger.LogInformation("Handling UpdateProductCommand for product: {@Command}", command);
+			//logger.LogInformation("Handling UpdateProductCommand for product: {@Command}", command);
+			// Validate command
+			var result = await validator.ValidateAsync(command, cancellationToken);
+			var errors = result.Errors.Select(x => x.ErrorMessage).ToList();
 
 			var product = await session.LoadAsync<Product>(command.Id, cancellationToken);
 			if (product == null)
 			{
-				logger.LogError("Handling UpdateProductCommand: Product Not Found {@Id}", command.Id);
-				throw new ProductNotFoundException();
+				//logger.LogError("Handling UpdateProductCommand: Product Not Found {@Id}", command.Id);
+				throw new ProductNotFoundException( command.Id);
 			}
 
 			product.Name = command.Name;

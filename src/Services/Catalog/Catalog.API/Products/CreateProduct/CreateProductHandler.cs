@@ -18,7 +18,8 @@
 	}
 
 	internal class CreateProductCommandHandler
-		(IDocumentSession session, ILogger<CreateProductCommandHandler> logger, IValidator<CreateProductCommand> validator)
+		(IDocumentSession session, //ILogger<CreateProductCommandHandler> logger, 
+		IValidator<CreateProductCommand> validator)
 		: ICommandHandler<CreateProductCommand, CreateProductResult>
 	{
 		public async Task<CreateProductResult> Handle(CreateProductCommand command, CancellationToken cancellationToken)
@@ -29,7 +30,7 @@
 
 			if(errors.Any())
 			{
-				logger.LogWarning("Validation failed for CreateProductCommand: {Errors}", string.Join(", ", errors));
+				//logger.LogWarning("Validation failed for CreateProductCommand: {Errors}", string.Join(", ", errors));
 				throw new ValidationException(errors.FirstOrDefault());
 			}
 
@@ -44,7 +45,7 @@
 				Category = command.Category
 			};
 
-			logger.LogInformation("Creating product with id {ProductId}", product.Id);	
+			//logger.LogInformation("Creating product with id {ProductId}", product.Id);	
 			// save to db
 			session.Store(product);
 			await session.SaveChangesAsync(cancellationToken);

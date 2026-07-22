@@ -1,4 +1,6 @@
 using BuildingBlocks.Behaviors;
+using BuildingBlocks.Exceptions.Handler;
+using Microsoft.AspNetCore.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 var assembly = typeof(Program).Assembly;
@@ -7,8 +9,9 @@ var assembly = typeof(Program).Assembly;
 builder.Services.AddMediatR(config =>
 {
 	config.RegisterServicesFromAssembly(assembly);
-	// Add validation behavior to the MediatR pipeline
+	// Add validation and logging behavior to the MediatR pipeline
 	config.AddOpenBehavior(typeof(ValidationBehavior<,>));
+	config.AddOpenBehavior(typeof(LoggingBehavior<,>));
 });
 
 // Add FluentValidation services
@@ -22,11 +25,41 @@ builder.Services.AddMarten(options =>
 	options.Connection(builder.Configuration.GetConnectionString("MyPostgresDB")!); // Roshan#2026@ DB password
 }).UseLightweightSessions();
 
-var app = builder.Build();
-
 // Configure the HTTP request pipeline.
-
 //app.MapGet("/", () => "Hello World!");
 
+builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+
+var app = builder.Build();
+
 app.MapCarter();
+app.UseExceptionHandler(options=> { });
+
+#region -- UseExceptionHandler --
+//app.UseExceptionHandler(exceptionHandlerApp =>
+//{
+//	exceptionHandlerApp.Run(async context =>
+//	{
+//		var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+//		if (exception == null)
+//			return;
+
+//		var problemDetails = new Microsoft.AspNetCore.Mvc.ProblemDetails
+//		{
+//			Title = exception.Message,
+//			Status = StatusCodes.Status500InternalServerError,
+//			Detail = exception.StackTrace	
+//		};
+
+//		var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+//		logger.LogError(exception, exception.Message);
+
+//		context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+//		context.Response.ContentType = "application/json";
+
+//		await context.Response.WriteAsJsonAsync(problemDetails);
+//	});
+//});
+#endregion
+
 app.Run();
