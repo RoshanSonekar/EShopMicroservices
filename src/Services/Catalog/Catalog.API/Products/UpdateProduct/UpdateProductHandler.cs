@@ -19,22 +19,15 @@
 		}
 	}
 
-	internal class UpdateProductCommandHandler(IDocumentSession session, IValidator<UpdateProductCommand> validator)//, ILogger<UpdateProductCommandHandler> logger)
+	internal class UpdateProductCommandHandler
+		(IDocumentSession session)
 		: ICommandHandler<UpdateProductCommand, UpdateProductResult>
 	{
 		public async Task<UpdateProductResult> Handle(UpdateProductCommand command, CancellationToken cancellationToken)
 		{
-			//logger.LogInformation("Handling UpdateProductCommand for product: {@Command}", command);
-			// Validate command
-			var result = await validator.ValidateAsync(command, cancellationToken);
-			var errors = result.Errors.Select(x => x.ErrorMessage).ToList();
-
 			var product = await session.LoadAsync<Product>(command.Id, cancellationToken);
 			if (product == null)
-			{
-				//logger.LogError("Handling UpdateProductCommand: Product Not Found {@Id}", command.Id);
 				throw new ProductNotFoundException( command.Id);
-			}
 
 			product.Name = command.Name;
 			product.Description = command.Description;
