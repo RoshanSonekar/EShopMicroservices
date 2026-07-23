@@ -1,6 +1,8 @@
 using BuildingBlocks.Behaviors;
 using BuildingBlocks.Exceptions.Handler;
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 var assembly = typeof(Program).Assembly;
@@ -30,10 +32,18 @@ builder.Services.AddMarten(options =>
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
+builder.Services.AddHealthChecks()
+	.AddNpgSql(builder.Configuration.GetConnectionString("MyPostgresDB")!);
+
 var app = builder.Build();
 
 app.MapCarter();
 app.UseExceptionHandler(options=> { });
+app.UseHealthChecks("/health",
+	new HealthCheckOptions
+	{
+		ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+	});
 
 #region -- UseExceptionHandler --
 //app.UseExceptionHandler(exceptionHandlerApp =>
