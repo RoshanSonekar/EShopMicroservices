@@ -3,8 +3,6 @@
 	public class BasketRepository (IDocumentSession session)
 		: IBasketRepository
 	{
-		
-
 		public async Task<ShoppingCart> GetBasket(string UserName, CancellationToken cancellationToken = default)
 		{
 			var basket = await session.LoadAsync<ShoppingCart>(UserName, cancellationToken);

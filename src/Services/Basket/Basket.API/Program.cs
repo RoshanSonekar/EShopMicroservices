@@ -1,4 +1,6 @@
 
+using BuildingBlocks.Exceptions.Handler;
+
 var builder = WebApplication.CreateBuilder(args);
 var assebly = typeof(Program).Assembly;
 
@@ -17,8 +19,12 @@ builder.Services.AddMarten(options =>
 	options.Schema.For<ShoppingCart>().Identity(x => x.UserName); // Set primary for user name in basket
 }).UseLightweightSessions();
 
+builder.Services.AddScoped<IBasketRepository, BasketRepository>();
+builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+
 var app = builder.Build();
 
 // configure http pipeline
-app.MapCarter();	
+app.MapCarter();
+app.UseExceptionHandler(options => { });
 app.Run();
